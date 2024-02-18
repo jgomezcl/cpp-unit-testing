@@ -14,19 +14,27 @@ add_subdirectory(googletest)
 
 include(CTest)
 
-# Add here your header files
-set(Headers
-    src/header.h
-)
+# Add main project subdirectory and import configuratin properties
+add_subdirectory(../test test)
 
-# Add here your source files
-set(Sources
-    src/source.cpp
-)
+get_property(Headers GLOBAL PROPERTY Headers)
+get_property(Sources GLOBAL PROPERTY Sources)
+get_property(Directories GLOBAL PROPERTY Directories)
 
-# Add here any required compiler symbols
+# Additional compiler symbols
 add_compile_options("-DDEBUG")
 
-add_library(${This} STATIC ${Sources} ${Headers})
+# Build source code, if present
+if (DEFINED Headers AND DEFINED Sources)
+    add_library(${This} STATIC ${Sources} ${Headers})
+    set_property(GLOBAL PROPERTY source_code ${This})
 
-add_subdirectory(tests)
+    # Add directories where included header files can be found
+    target_include_directories(${This} PUBLIC
+        utils/
+        Directories
+    )
+
+endif(DEFINED Headers AND DEFINED Sources)
+
+add_subdirectory(unit_tests)
