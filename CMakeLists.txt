@@ -32,7 +32,7 @@ if (DEFINED Headers AND DEFINED Sources)
     # Add directories where included header files can be found
     target_include_directories(${This} PUBLIC
         utils/
-        Directories
+        ${Directories}
     )
 
 endif(DEFINED Headers AND DEFINED Sources)
