@@ -1,5 +1,5 @@
 # Unit testing
-Unit testing environment, based on [Google Test](https://google.github.io/googletest/).
+Pre-configured unit testing environment for C/C++ projects, based on [Google Test](https://google.github.io/googletest/).
 
 ## Requirements
 * GCC
@@ -24,24 +24,22 @@ pacman -S mingw-w64-x86_64-cmake
 * In VS Code, locate and install the C++ TestMate extension.
 
 # Usage
-## Import into another project
+## Import into a project
 * Add the repository as a submodule, at the same level as the */src* folder.
-* Create a folder at the same level of */src* named */tests*.
-* Copy and edit the file *examples/CMakeLists.txt* into */tests*.
-* Add as many test files as required into */tests* following the example available in *examples/test_example.cpp*.
-* In VS code, set the CMake source directory to *unit_testing/* (in *settings.json*).
+* Create an additional folder at the same level of */src* named */tests*.
+* Add as many test files as required into the folder */tests* following the example available in *examples/test_example.cpp*.
+* Copy the file *examples/CMakeLists.txt* into the folder */tests* and adapt it to your project structure.
 
 ## Create tests
-* There should be a separate test file for each tested module.
-* All tests belonging to a module should be in a unique test file.
+* All tests belonging to a module should be in a single test file.
 * All tests belonging to a tested file should belong to the same test suite.
-* See  [Google Test](https://google.github.io/googletest/) for instructions about how to define tests.
+* See [Google Test](https://google.github.io/googletest/) for instructions about how to define tests.
 
 ## Run tests (VS Code)
 * Launch the tests from the *Testing* tab.
 
 ## Debug unit tests (VS Code)
-* Create a *launch.json* file in */.vscode* containing.
+* Create a *launch.json* file in */.vscode* and add the following settings
 ```bash
 {
     "version": "0.2.0",
