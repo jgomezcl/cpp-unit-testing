@@ -50,7 +50,7 @@ pacman -S mingw-w64-x86_64-cmake
             "name": "Debug tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/unit_tests/my_project.exe",
+            "program": "${workspaceFolder}/build/unit_tests/unit_tests.exe",
             "environment": [{ "name": "config", "value": "Debug" }],
             "cwd": "${workspaceFolder}"
         }
