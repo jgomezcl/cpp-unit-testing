@@ -28,7 +28,7 @@ pacman -S mingw-w64-x86_64-cmake
 * Add the repository as a submodule at the same level as the */src* folder.
 * Create an additional folder named */tests* at the same level as */src*.
 * Add test files into the */tests* folder following the example in *examples/test_example.cpp*.
-* Copy the file *examples/CMakeLists.txt* into the */tests* folder and customize it for your [project structure](examples/project_structure.md).
+* Copy the file *examples/CMakeLists.txt* into the */tests* folder and customize it for your [project structure](examples/README.md).
 
 ## Create tests
 * All tests belonging to a module should be in a single test file.
