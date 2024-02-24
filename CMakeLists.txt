@@ -27,7 +27,7 @@ set(src_path "../src")
 foreach(dir ${Directories})
     list(APPEND dirs "${src_path}/${dir}")
 endforeach()
-list(APPEND dirs ${source_path})
+list(APPEND dirs ${src_path})
 set(Directories ${dirs})
 
 # Additional compiler symbols
