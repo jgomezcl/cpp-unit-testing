@@ -23,6 +23,7 @@
                             {                                                   \
                                 throw std::runtime_error("Assertion failed");   \
                             }                                                   \
-                        }
+                        }                                                       \
+                        while(0)
 
 #endif /* ASSERT_H */
