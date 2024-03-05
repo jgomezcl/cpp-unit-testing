@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-set(This source_code)
+set(This unit_tests)
 
 project(${This} C CXX)
 
@@ -10,50 +10,57 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 enable_testing()
 
-add_subdirectory(googletest)
+# Main paths
+set(source_path "..")
+set(test_path "tests")
+set(mock_path "${test_path}/mock")
 
+add_subdirectory(googletest)
+add_subdirectory(${test_path})
+
+list(APPEND libraries gtest_main)
 include(CTest)
 
-# Add main project subdirectory and import configuratin properties
-add_subdirectory(../test test)
-
-get_property(Headers GLOBAL PROPERTY Headers)
-get_property(Sources GLOBAL PROPERTY Sources)
-get_property(Directories GLOBAL PROPERTY Directories)
-
-# Update the paths
-set(src_path "../src")
-
-foreach(dir ${Directories})
-    list(APPEND dirs "${src_path}/${dir}")
-endforeach()
-list(APPEND dirs ${src_path})
-set(Directories ${dirs})
+# Get properties from config file in /tests
+get_property(header_files GLOBAL PROPERTY header_files)
+get_property(source_files GLOBAL PROPERTY source_files)
+get_property(directories GLOBAL PROPERTY directories)
+get_property(test_files GLOBAL PROPERTY test_files)
 
 # Additional compiler symbols
 add_compile_options("-DDEBUG")
 
 # Build source code, if present
-if (DEFINED Headers AND DEFINED Sources)
+if (DEFINED header_files AND DEFINED source_files)
 
-    # Update the paths
-    foreach(head ${Headers})
-        list(APPEND head_files "${src_path}/${head}")
-    endforeach()
+    list(TRANSFORM header_files PREPEND "${source_path}/")
+    list(TRANSFORM source_files PREPEND "${source_path}/")
 
-    foreach(src ${Sources})
-        list(APPEND src_files "${src_path}/${src}")
-    endforeach()
-
-    add_library(${This} STATIC ${src_files} ${head_files})
-    set_property(GLOBAL PROPERTY source_code ${This})
+    add_library(source_lib STATIC ${source_files} ${header_files})
 
     # Add directories where included header files can be found
-    target_include_directories(${This} PUBLIC
-        utils/
-        ${Directories}
+    list(TRANSFORM directories PREPEND "${source_path}/")
+
+    target_include_directories(source_lib PUBLIC
+        ${mock_path}
+        ${directories}
     )
 
-endif(DEFINED Headers AND DEFINED Sources)
+    # Add to the libraries list
+    list(APPEND libraries source_lib)
 
-add_subdirectory(unit_tests)
+endif(DEFINED header_files AND DEFINED source_files)
+
+
+list(TRANSFORM test_files PREPEND "${test_path}/")
+
+add_executable(${This} ${test_files})
+
+target_link_libraries(${This} PUBLIC
+    ${libraries}
+)
+
+add_test(
+    NAME ${This}
+    COMMAND ${This}
+)
