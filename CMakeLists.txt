@@ -11,12 +11,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 enable_testing()
 
 # Main paths
-set(source_path "..")
-set(test_path "tests")
+set(source_path "../src")
+set(test_path "../test")
 set(mock_path "${test_path}/mock")
 
 add_subdirectory(googletest)
-add_subdirectory(${test_path})
+add_subdirectory(${test_path} build)
 
 list(APPEND libraries gtest_main)
 include(CTest)
@@ -44,6 +44,7 @@ if (DEFINED header_files AND DEFINED source_files)
     target_include_directories(source_lib PUBLIC
         ${mock_path}
         ${directories}
+        "${source_path}/"
     )
 
     # Add to the libraries list
