@@ -36,6 +36,19 @@ pacman -S mingw-w64-x86_64-cmake
 * Refer to [Google Test](https://google.github.io/googletest/) for instructions on defining tests.
 
 ## Run tests (VS Code)
+* Restart VS code and select the appropriate CMake folder and compiler kit.
+* Add the following entry to *settings.json* to build the project in the */test* folder:
+```bash
+"cmake.buildDirectory": "${workspaceFolder}/test/build"
+```
+* Add the following entry to *settings.json* so C++ TestMate can locate the generated executable:
+```bash
+"testMate.cpp.test.advancedExecutables": [
+        {
+          "pattern": "test/{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*",
+        }
+    ],
+```
 * Launch tests from the *Testing* tab as usual.
 
 ## Debug unit tests (VS Code)
