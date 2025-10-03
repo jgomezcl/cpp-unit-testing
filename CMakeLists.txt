@@ -8,7 +8,7 @@ set(PROJECT_SRC_DIR "" CACHE PATH "Path to the project's source code folder")
 set(PROJECT_TEST_DIR "" CACHE PATH "Path to the project's test folder")
 
 
-# Validate input
+# Validate inputs
 if(NOT PROJECT_SRC_DIR)
     message(FATAL_ERROR "You must set PROJECT_SRC_DIR to the project's source folder")
 endif()
