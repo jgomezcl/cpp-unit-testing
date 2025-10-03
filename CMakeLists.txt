@@ -1,67 +1,70 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.12)
 
-set(This unit_tests)
+project(unit_testing LANGUAGES C CXX)
 
-project(${This} C CXX)
+# -----------------------------
+# Options to configure
+# -----------------------------
+# Path to the project source code
+set(PROJECT_SRC_DIR "" CACHE PATH "Path to the project's source code folder")
+# Path to the project's test folder
+set(PROJECT_TEST_DIR "" CACHE PATH "Path to the project's test folder")
+# Optionally disable tests
+option(BUILD_PROJECT_TESTS "Build project tests" ON)
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# -----------------------------
+# Validate input
+# -----------------------------
+if(NOT PROJECT_SRC_DIR)
+    message(FATAL_ERROR "You must set PROJECT_SRC_DIR to the project's source folder")
+endif()
 
-enable_testing()
+if(BUILD_PROJECT_TESTS AND NOT PROJECT_TEST_DIR)
+    message(FATAL_ERROR "BUILD_PROJECT_TESTS is ON but PROJECT_TEST_DIR is not set")
+endif()
 
-# Main paths
-set(source_path "../src")
-set(test_path "../test")
-set(mock_path "${test_path}/mock")
+# -----------------------------
+# Collect source and header files from the project
+# -----------------------------
+file(GLOB_RECURSE PROJECT_SOURCES ${PROJECT_SRC_DIR}/*.c)
+file(GLOB_RECURSE PROJECT_HEADERS ${PROJECT_SRC_DIR}/*.h)
 
-add_subdirectory(googletest)
-add_subdirectory(${test_path} build)
+# -----------------------------
+# Build the project library
+# -----------------------------
+add_library(project_lib ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
-list(APPEND libraries gtest_main)
-include(CTest)
+# Include all subfolders of source folder
+file(GLOB_RECURSE ALL_SUBDIRS LIST_DIRECTORIES true ${PROJECT_SRC_DIR}/*)
+set(INCLUDE_DIRS ${PROJECT_SRC_DIR})
+foreach(dir ${ALL_SUBDIRS})
+    if(IS_DIRECTORY ${dir})
+        list(APPEND INCLUDE_DIRS ${dir})
+    endif()
+endforeach()
 
-# Get properties from config file in /tests
-get_property(header_files GLOBAL PROPERTY header_files)
-get_property(source_files GLOBAL PROPERTY source_files)
-get_property(directories GLOBAL PROPERTY directories)
-get_property(test_files GLOBAL PROPERTY test_files)
+target_include_directories(project_lib PUBLIC ${INCLUDE_DIRS})
 
-# Additional compiler symbols
-add_compile_options("-DDEBUG")
+# -----------------------------
+# Enable testing and add GoogleTest
+# -----------------------------
+if(BUILD_PROJECT_TESTS)
+    enable_testing()
+    add_subdirectory(googletest)
 
-# Build source code, if present
-if (DEFINED header_files AND DEFINED source_files)
+    # Collect all test files
+    file(GLOB TEST_SOURCES "${PROJECT_TEST_DIR}/test_*.cpp")
 
-    list(TRANSFORM header_files PREPEND "${source_path}/")
-    list(TRANSFORM source_files PREPEND "${source_path}/")
+    foreach(test_src ${TEST_SOURCES})
+        get_filename_component(test_name ${test_src} NAME_WE)
 
-    add_library(source_lib STATIC ${source_files} ${header_files})
+        add_executable(${test_name} ${test_src})
 
-    # Add directories where included header files can be found
-    list(TRANSFORM directories PREPEND "${source_path}/")
+        # Include mocks if present
+        target_include_directories(${test_name} PRIVATE ${PROJECT_TEST_DIR}/mock)
 
-    target_include_directories(source_lib PUBLIC
-        ${mock_path}
-        ${directories}
-        "${source_path}/"
-    )
+        target_link_libraries(${test_name} PRIVATE project_lib gtest gtest_main)
 
-    # Add to the libraries list
-    list(APPEND libraries source_lib)
-
-endif(DEFINED header_files AND DEFINED source_files)
-
-
-list(TRANSFORM test_files PREPEND "${test_path}/")
-
-add_executable(${This} ${test_files})
-
-target_link_libraries(${This} PUBLIC
-    ${libraries}
-)
-
-add_test(
-    NAME ${This}
-    COMMAND ${This}
-)
+        add_test(NAME ${test_name} COMMAND ${test_name})
+    endforeach()
+endif()
