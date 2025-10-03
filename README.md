@@ -8,7 +8,7 @@ Pre-configured unit testing environment for C/C++ projects, based on [Google Tes
 * (optional) CMakeTools extension (for VS Code)
 * (optional) C++ TestMate extension (for VS Code)
 
-## Envinronment setup (Windows)
+## Environment setup (Windows)
 * Download and install [MSYS2](https://www.msys2.org/).
 * Open an UCRT64 terminal and install the MinGW-w64 toolchain:
 ```bash
@@ -25,10 +25,31 @@ pacman -S mingw-w64-x86_64-cmake
 
 # Usage
 ## Import into another project
-* Add the repository as a submodule, at the same level as the */src* folder.
-* Create an additional folder named */tests* at the same level as */src*.
-* Add test files into the */tests* folder following the example in *examples/test_example.cpp*.
-* Copy the file *examples/CMakeLists.txt* into the */tests* folder and customize it for your [project structure](examples/README.md).
+* Add the repository as a submodule.
+    * Place the submodule at the same level as your project’s `src` folder:
+    ```text
+    project/
+    ├─ src/
+    ├─ unit_testing/
+    ```
+* Create a folder for your tests.
+    * Create a folder `test` at the same level as `src` (or configure a custom folder if desired):
+    ```text
+    project/
+    ├─ src/
+    ├─ test/
+    ├─ unit_testing/
+    ```
+    * Add your test files in this folder.
+    * Test filenames should start with `test_` (e.g., test_math.cpp).
+    * You can follow the example in `examples/test_example.cpp`.
+* Configure the `CMakeLists.txt`.
+    * Copy `configuration/CMakeLists.txt` to your project root (same folder as `src` and the submodule).
+    * Edit it to set the correct paths for your project:
+    ```text
+    set(PROJECT_SRC_DIR ${CMAKE_SOURCE_DIR}/src)
+    set(PROJECT_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
+    ```
 
 ## Create tests
 * All tests belonging to a file under test should be in a single test file.
@@ -69,6 +90,30 @@ pacman -S mingw-w64-x86_64-cmake
 }
 ```
 * Launch the debug session from the *Run and Debug* tab.
+
+## ⚠️ Common Pitfalls
+
+### C++ Include Guards in C headers
+
+If your project contains **C headers** included in **C++ test files**, you may encounter **linker errors** like:
+
+`undefined reference to my_function()`
+
+This often happens when the header is wrapped incorrectly with include guards or C++ extern blocks.
+
+**Solution:** Wrap C headers included in C++ code with `extern "C"`:
+
+```cpp
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "my_header.h"
+
+#ifdef __cplusplus
+}
+#endif
+```
 
 ## Resources
 
