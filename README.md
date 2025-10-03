@@ -91,6 +91,30 @@ pacman -S mingw-w64-x86_64-cmake
 ```
 * Launch the debug session from the *Run and Debug* tab.
 
+## ⚠️ Common Pitfalls
+
+### C++ Include Guards in C headers
+
+If your project contains **C headers** included in **C++ test files**, you may encounter **linker errors** like:
+
+`undefined reference to my_function()`
+
+This often happens when the header is wrapped incorrectly with include guards or C++ extern blocks.
+
+**Solution:** Wrap C headers included in C++ code with `extern "C"`:
+
+```cpp
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "my_header.h"
+
+#ifdef __cplusplus
+}
+#endif
+```
+
 ## Resources
 
 * [Using GCC with MinGW](https://code.visualstudio.com/docs/cpp/config-mingw)
