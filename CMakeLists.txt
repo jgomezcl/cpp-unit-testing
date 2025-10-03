@@ -35,7 +35,6 @@ endforeach()
 
 target_include_directories(project_lib PUBLIC ${INCLUDE_DIRS})
 
-
 # Enable testing and add GoogleTest
 enable_testing()
 add_subdirectory(googletest)
