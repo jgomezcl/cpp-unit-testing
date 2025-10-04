@@ -3,11 +3,16 @@ cmake_minimum_required(VERSION 3.12)
 project(unit_testing LANGUAGES C CXX)
 
 # Path to the project source code
-set(PROJECT_SRC_DIR "" CACHE PATH "Path to the project's source code folder")
-# Path to the project's test folder
-set(PROJECT_TEST_DIR "" CACHE PATH "Path to the project's test folder")
+if(NOT DEFINED PROJECT_SRC_DIR)
+    set(PROJECT_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/../src1" CACHE PATH "Path to the project's source folder")
+endif()
 
-# Validate inputs
+# Path to the project test code
+if(NOT DEFINED PROJECT_TEST_DIR)
+    set(PROJECT_TEST_DIR "${CMAKE_CURRENT_LIST_DIR}/../test1" CACHE PATH "Path to the project's test folder")
+endif()
+
+# Validate that folders exist
 if(NOT PROJECT_SRC_DIR)
     message(FATAL_ERROR "You must set PROJECT_SRC_DIR to the project's source folder")
 endif()
@@ -17,8 +22,20 @@ if(NOT PROJECT_TEST_DIR)
 endif()
 
 # Collect source and header files from the project
-file(GLOB_RECURSE PROJECT_SOURCES ${PROJECT_SRC_DIR}/*.c)
-file(GLOB_RECURSE PROJECT_HEADERS ${PROJECT_SRC_DIR}/*.h)
+file(GLOB_RECURSE PROJECT_C_SOURCES  "${PROJECT_SRC_DIR}/*.c")
+file(GLOB_RECURSE PROJECT_CPP_SOURCES "${PROJECT_SRC_DIR}/*.cpp")
+# file(GLOB_RECURSE PROJECT_HEADERS "${PROJECT_SRC_DIR}/*.h")
+
+set(PROJECT_SOURCES ${PROJECT_C_SOURCES} ${PROJECT_CPP_SOURCES})
+
+if(NOT PROJECT_SOURCES)
+    message(FATAL_ERROR "No .c source files found in ${PROJECT_SRC_DIR}")
+endif()
+
+# List all source files found
+foreach(src IN LISTS PROJECT_SOURCES)
+    message(STATUS "  ${src}")
+endforeach()
 
 # Build the project library
 add_library(project_lib ${PROJECT_SOURCES} ${PROJECT_HEADERS})
@@ -36,7 +53,7 @@ target_include_directories(project_lib PUBLIC ${INCLUDE_DIRS})
 
 # Enable testing and add GoogleTest
 enable_testing()
-add_subdirectory(googletest)
+add_subdirectory(googletest EXCLUDE_FROM_ALL)
 
 # Collect all test files
 file(GLOB TEST_SOURCES "${PROJECT_TEST_DIR}/test_*.cpp")
