@@ -1,4 +1,5 @@
-# C/C++ Unit Testing
+# C/C++ Unit Testing [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 
 Pre-configured unit testing environment for **C/C++** projects, based on [Google Test](https://github.com/google/googletest) and [VS Code](https://code.visualstudio.com/).
 
