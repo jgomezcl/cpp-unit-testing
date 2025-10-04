@@ -4,17 +4,16 @@ project(unit_testing LANGUAGES C CXX)
 
 # Path to the project source code
 if(NOT DEFINED PROJECT_SRC_DIR)
-    set(PROJECT_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/../src1" CACHE PATH "Path to the project's source folder")
+    set(PROJECT_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/../src" CACHE PATH "Path to the project's source folder")
+endif()
+
+if(NOT PROJECT_SRC_DIR)
+    message(FATAL_ERROR "You must set PROJECT_SRC_DIR to the project's source folder")
 endif()
 
 # Path to the project test code
 if(NOT DEFINED PROJECT_TEST_DIR)
-    set(PROJECT_TEST_DIR "${CMAKE_CURRENT_LIST_DIR}/../test1" CACHE PATH "Path to the project's test folder")
-endif()
-
-# Validate that folders exist
-if(NOT PROJECT_SRC_DIR)
-    message(FATAL_ERROR "You must set PROJECT_SRC_DIR to the project's source folder")
+    set(PROJECT_TEST_DIR "${CMAKE_CURRENT_LIST_DIR}/../test" CACHE PATH "Path to the project's test folder")
 endif()
 
 if(NOT PROJECT_TEST_DIR)
@@ -28,12 +27,13 @@ file(GLOB_RECURSE PROJECT_CPP_SOURCES "${PROJECT_SRC_DIR}/*.cpp")
 set(PROJECT_SOURCES ${PROJECT_C_SOURCES} ${PROJECT_CPP_SOURCES})
 
 if(NOT PROJECT_SOURCES)
-    message(FATAL_ERROR "No .c source files found in ${PROJECT_SRC_DIR}")
+    message(FATAL_ERROR "No .c/.cpp source files found in ${PROJECT_SRC_DIR}")
 endif()
 
 # List all source files found
+message(NOTICE "[NOTICE] Found source files:")
 foreach(src IN LISTS PROJECT_SOURCES)
-    message(STATUS "  ${src}")
+    message(NOTICE "    - ${src}")
 endforeach()
 
 # Build the project library
@@ -59,6 +59,7 @@ file(GLOB TEST_SOURCES "${PROJECT_TEST_DIR}/test_*.cpp")
 
 # Convert semicolon-separated string to a list
 separate_arguments(SKIP_UNIT_TESTS)
+set(SKIP_HEADER_PRINTED FALSE CACHE INTERNAL "Flag to print skip header once")
 
 foreach(test_src ${TEST_SOURCES})
     get_filename_component(test_name ${test_src} NAME_WE)
@@ -66,7 +67,11 @@ foreach(test_src ${TEST_SOURCES})
     # Skip if this test is in the skip list
     list(FIND SKIP_UNIT_TESTS ${test_name} skip_index)
     if(NOT skip_index EQUAL -1)
-        message(WARNING "Skipping test ${test_name}")
+        if(NOT SKIP_HEADER_PRINTED)
+            message(NOTICE "[NOTICE] Skipping tests:")
+            set(SKIP_HEADER_PRINTED TRUE CACHE INTERNAL "")
+        endif()
+        message(NOTICE "    - ${test_name}")
         continue()
     endif()
 
