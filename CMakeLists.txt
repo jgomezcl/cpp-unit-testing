@@ -24,7 +24,6 @@ endif()
 # Collect source and header files from the project
 file(GLOB_RECURSE PROJECT_C_SOURCES  "${PROJECT_SRC_DIR}/*.c")
 file(GLOB_RECURSE PROJECT_CPP_SOURCES "${PROJECT_SRC_DIR}/*.cpp")
-# file(GLOB_RECURSE PROJECT_HEADERS "${PROJECT_SRC_DIR}/*.h")
 
 set(PROJECT_SOURCES ${PROJECT_C_SOURCES} ${PROJECT_CPP_SOURCES})
 
@@ -58,8 +57,18 @@ add_subdirectory(googletest EXCLUDE_FROM_ALL)
 # Collect all test files
 file(GLOB TEST_SOURCES "${PROJECT_TEST_DIR}/test_*.cpp")
 
+# Convert semicolon-separated string to a list
+separate_arguments(SKIP_UNIT_TESTS)
+
 foreach(test_src ${TEST_SOURCES})
     get_filename_component(test_name ${test_src} NAME_WE)
+
+    # Skip if this test is in the skip list
+    list(FIND SKIP_UNIT_TESTS ${test_name} skip_index)
+    if(NOT skip_index EQUAL -1)
+        message(WARNING "Skipping test ${test_name}")
+        continue()
+    endif()
 
     add_executable(${test_name} ${test_src})
 
