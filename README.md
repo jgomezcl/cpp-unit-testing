@@ -1,4 +1,4 @@
-# Unit Testing
+# C/C++ Unit Testing
 
 Pre-configured unit testing environment for **C/C++** projects, based on [Google Test](https://github.com/google/googletest) and [VS Code](https://code.visualstudio.com/).
 
