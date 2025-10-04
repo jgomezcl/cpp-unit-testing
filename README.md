@@ -1,121 +1,160 @@
-# Unit testing
-Pre-configured unit testing environment for C/C++ projects, based on [Google Test](https://github.com/google/googletest).
+# Unit Testing
+
+Pre-configured unit testing environment for **C/C++** projects, based on [Google Test](https://github.com/google/googletest) and [VS Code](https://code.visualstudio.com/).
 
 ## Requirements
-* GCC
-* CMake
-* (optional) VS Code
-* (optional) CMakeTools extension (for VS Code)
-* (optional) C++ TestMate extension (for VS Code)
 
-## Environment setup (Windows)
-* Download and install [MSYS2](https://www.msys2.org/).
-* Open an UCRT64 terminal and install the MinGW-w64 toolchain:
+* **GCC**
+* **CMake**
+* **CMakeTools** extension for **VS Code**
+* **C++ TestMate** extension for **VS Code**
+
+## Getting Started
+1. Import this repository into the project you want to unit test — ideally at the root level, alongside your source code folder `src`.
+
+2. Create a `test` folder in your project to contain the unit tests.
+
+3. Copy `configuration/CMakeLists.txt` from this repository into your project's root directory (the same level than `src`).
+
+    ```
+    project/
+    ├─ CMakeLists.txt <--
+    ├─ src/
+    ├─ test/
+    └─ unit_testing/
+    ```
+
+4. Edit the copied `CMakeLists.txt` so that it points to your source and/or test directories if they have different names or are nested differently.
+
+    ```cmake
+    set(PROJECT_SRC_DIR ${CMAKE_SOURCE_DIR}/src)
+    set(PROJECT_TEST_DIR ${CMAKE_SOURCE_DIR}/test)
+    ```
+
+## Adding Unit Tests
+
+* Add your test files in the `test` folder.
+* Test filenames should start with `test_` (for example, `test_math.cpp`).
+* You can use the example in `examples/test_example.cpp` as a reference.
+* Refer to [Google Test](https://google.github.io/googletest/) for additional instructions on defining tests.
+
+## Environment Setup (Windows)
+The following steps describe how to set up a Windows development environment using **MSYS2** and **VS Code**.
+
+1. Download and install [MSYS2](https://www.msys2.org/).
+
+2. Open an **UCRT64** terminal and install the **MinGW-w64** toolchain:
+
 ```bash
 pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain
 ```
-* Install CMake:
+
+3. Install **CMake**:
+
 ```bash
 pacman -S mingw-w64-x86_64-cmake
 ```
-* Add the MinGW-w64 installation folder to the PATH environment variable (default is *C:\msys64\ucrt64\bin*).
 
-* In VS Code, locate and install the CMakeTools extension.
-* In VS Code, locate and install the C++ TestMate extension.
+4. Add the **MinGW-w64** installation folder to your `PATH` environment variable (the default path is `C:\msys64\ucrt64\bin`).
 
-# Usage
-## Import into another project
-* Add the repository as a submodule.
-    * Place the submodule at the same level as your project’s `src` folder:
-    ```text
-    project/
-    ├─ src/
-    ├─ unit_testing/
-    ```
-* Create a folder for your tests.
-    * Create a folder `test` at the same level as `src` (or configure a custom folder if desired):
-    ```text
-    project/
-    ├─ src/
-    ├─ test/
-    ├─ unit_testing/
-    ```
-    * Add your test files in this folder.
-    * Test filenames should start with `test_` (e.g., test_math.cpp).
-    * You can follow the example in `examples/test_example.cpp`.
-* Configure the `CMakeLists.txt`.
-    * Copy `configuration/CMakeLists.txt` to your project root (same folder as `src` and the submodule).
-    * Edit it to set the correct paths for your project:
-    ```text
-    set(PROJECT_SRC_DIR ${CMAKE_SOURCE_DIR}/src)
-    set(PROJECT_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
+5. In **VS Code**:
+    - Install the **CMakeTools extension**.
+    - Install the **C++ TestMate extension**.
+
+## Running and Debugging Unit Tests
+
+This section explains how to configure **VS Code** and **CMake** to build, run, and debug your unit tests.
+
+### 1. Configure CMake and VS Code
+
+1. Restart **VS Code** and select the appropriate **CMake** source directory and compiler kit.
+   The selected source directory is stored in `.vscode/settings.json` under the key `"cmake.sourceDirectory"`.
+
+2. Set the build directory for the test project by adding the following to `settings.json`:
+
+    ```json
+    "cmake.buildDirectory": "${workspaceFolder}/test/build"
     ```
 
-## Create tests
-* All tests belonging to a file under test should be in a single test file.
-* All tests belonging to a module should belong to the same test suite.
-* Refer to [Google Test](https://google.github.io/googletest/) for instructions on defining tests.
+3. Configure **C++ TestMate** to locate test executables by adding this entry to `settings.json`:
 
-## Run tests (VS Code)
-* Restart VS code and select the appropriate CMake folder and compiler kit.
-* Add the following entry to *settings.json* to build the project in the */test* folder:
-```bash
-"cmake.buildDirectory": "${workspaceFolder}/test/build"
-```
-* Add the following entry to *settings.json* so C++ TestMate can locate the generated executable:
-```bash
-"testMate.cpp.test.advancedExecutables": [
-        {
-          "pattern": "test/{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*",
-        }
+    ```json
+    "testMate.cpp.test.advancedExecutables": [
+      {
+        "pattern": "test/{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*"
+      }
     ],
-```
-* Launch tests from the *Testing* tab as usual.
+    ```
 
-## Debug unit tests (VS Code)
-* Create a *launch.json* file in */.vscode* and add the following settings:
-```bash
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug tests",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/unit_tests/unit_tests.exe",
-            "environment": [{ "name": "config", "value": "Debug" }],
-            "cwd": "${workspaceFolder}"
-        }
-    ]
-}
-```
-* Launch the debug session from the *Run and Debug* tab.
+### 2. Running Tests
+
+- Launch tests from the **Testing** tab in **VS Code** as usual.
+- TestMate will automatically detect files starting with `test_` and run them.
+
+### 3. Debugging Tests
+
+1. Create a `.vscode/launch.json` file (if it does not exist) with the following configuration:
+
+    ```json
+    {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Debug tests",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "${workspaceFolder}/test/build/unit_tests.exe",
+                "environment": [{ "name": "config", "value": "Debug" }],
+                "cwd": "${workspaceFolder}"
+            }
+        ]
+    }
+    ```
+
+2. Launch a debug session from the **Run and Debug** tab in **VS Code**.
 
 ## ⚠️ Common Pitfalls
 
-### C++ Include Guards in C headers
+These are typical issues encountered when integrating **C/C++** unit tests with **Google Test** in **VS Code**.
 
-If your project contains **C headers** included in **C++ test files**, you may encounter **linker errors** like:
+* Missing C++ include guards in C headers.
 
-`undefined reference to my_function()`
+    If your project contains **C headers** included in **C++ test files**, you may encounter **linker errors** like:
 
-This often happens when the header is wrapped incorrectly with include guards or C++ extern blocks.
+    ```text
+    undefined reference to my_function()
+    ```
 
-**Solution:** Wrap C headers included in C++ code with `extern "C"`:
+    This often happens when the header is missing proper include guards or `extern "C"` blocks.
 
-```cpp
-#ifdef __cplusplus
-extern "C" {
-#endif
+    **Solution:** Wrap your C headers with C++ guards:
 
-#include "my_header.h"
+    ```cpp
+    #ifdef __cplusplus
+    extern "C" {
+    #endif
 
-#ifdef __cplusplus
-}
-#endif
-```
+    // Your C header contents here
+
+    #ifdef __cplusplus
+    }
+    #endif
+    ```
+
+* Unbuildable unit tests.
+
+    Sometimes a unit test cannot be built due to a refactor in the source code.
+
+    **Solution:** Skip the problematic tests by adding them to the `CMakeLists.txt`:
+
+    ```cmake
+    set(SKIP_UNIT_TESTS "test_skip1.cpp;test_skip2.cpp")
+    ```
+
+    These tests will be ignored during the build, preventing build errors while you fix them.
 
 ## Resources
 
 * [Using GCC with MinGW](https://code.visualstudio.com/docs/cpp/config-mingw)
 * [Configure C/C++ debugging](https://code.visualstudio.com/docs/cpp/launch-json-reference)
+* [Google Test documentation](https://google.github.io/googletest/)
