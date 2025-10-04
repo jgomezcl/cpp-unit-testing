@@ -34,7 +34,7 @@ Pre-configured unit testing environment for **C/C++** projects, based on [Google
 ## Adding Unit Tests
 
 * Add your test files in the `/test` folder.
-* Test filenames should start with `test_` (for example, `test_math.cpp`).
+* Test filenames should start with `test_` (for example, `test_math.cpp`). All files in the `test` folder that start with `test_` will be automatically added to the build as tests.
 * You can use the example in `examples/test_example.cpp` as a reference.
 * Refer to [Google Test](https://google.github.io/googletest/) for additional instructions on defining tests.
 
