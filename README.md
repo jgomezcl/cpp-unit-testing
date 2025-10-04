@@ -10,11 +10,11 @@ Pre-configured unit testing environment for **C/C++** projects, based on [Google
 * **C++ TestMate** extension for **VS Code**
 
 ## Getting Started
-1. Import this repository into the project you want to unit test — ideally at the root level, alongside your source code folder `src`.
+1. Import this repository into the project you want to unit test — ideally at the root level, alongside your source code folder `/src`.
 
-2. Create a `test` folder in your project to contain the unit tests.
+2. Create a `/test` folder in your project to contain the unit tests.
 
-3. Copy `configuration/CMakeLists.txt` from this repository into your project's root directory (the same level than `src`).
+3. Copy `configuration/CMakeLists.txt` from this repository into your project's root directory (the same level than `/src`).
 
     ```
     project/
@@ -33,7 +33,7 @@ Pre-configured unit testing environment for **C/C++** projects, based on [Google
 
 ## Adding Unit Tests
 
-* Add your test files in the `test` folder.
+* Add your test files in the `/test` folder.
 * Test filenames should start with `test_` (for example, `test_math.cpp`).
 * You can use the example in `examples/test_example.cpp` as a reference.
 * Refer to [Google Test](https://google.github.io/googletest/) for additional instructions on defining tests.
