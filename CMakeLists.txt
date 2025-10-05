@@ -2,6 +2,18 @@ cmake_minimum_required(VERSION 3.12)
 
 project(unit_testing LANGUAGES C CXX)
 
+option(ENABLE_COVERAGE "Enable code coverage flags" ON)
+
+if(ENABLE_COVERAGE)
+    message(STATUS "Building with coverage instrumentation")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-O0 -g --coverage)
+        add_link_options(--coverage)
+    else()
+        message(WARNING "Coverage only supported with GCC or Clang")
+    endif()
+endif()
+
 # Path to the project source code
 if(NOT DEFINED PROJECT_SRC_DIR)
     set(PROJECT_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/../src" CACHE PATH "Path to the project's source folder")
@@ -87,3 +99,26 @@ foreach(test_src ${TEST_SOURCES})
 
     add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
+
+find_program(GCOVR_EXECUTABLE gcovr)
+
+# if(NOT GCOVR_EXECUTABLE)
+#         message(WARNING
+#             "⚠️  gcovr not found. Please install it with:\n"
+#             "   pip install gcovr\n"
+#             "Then re-run cmake -DENABLE_COVERAGE=ON -B build"
+#         )
+# endif()
+
+if(ENABLE_COVERAGE AND GCOVR_EXECUTABLE)
+    add_custom_target(coverage
+        COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+        COMMAND ${GCOVR_EXECUTABLE}
+            -r ${CMAKE_SOURCE_DIR}
+            --object-directory ${CMAKE_BINARY_DIR}
+            --html --html-details -o coverage.html
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "📊 Running tests and generating HTML coverage report..."
+        VERBATIM
+    )
+endif()
