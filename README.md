@@ -154,6 +154,11 @@ These are typical issues encountered when integrating **C/C++** unit tests with 
 
     These tests will be ignored during the build, preventing build errors while you fix them.
 
+
+pip install gcovr
+gcovr -r src -d test/build/unit_testing --html --html-details -o coverage.html -v
+
+
 ## Resources
 
 * [Using GCC with MinGW](https://code.visualstudio.com/docs/cpp/config-mingw)

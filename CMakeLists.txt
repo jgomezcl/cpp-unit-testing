@@ -9,8 +9,6 @@ if(ENABLE_COVERAGE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         add_compile_options(-O0 -g --coverage)
         add_link_options(--coverage)
-    else()
-        message(WARNING "Coverage only supported with GCC or Clang")
     endif()
 endif()
 
@@ -100,25 +98,35 @@ foreach(test_src ${TEST_SOURCES})
     add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
 
+
+# Create a coverage target
 find_program(GCOVR_EXECUTABLE gcovr)
 
-# if(NOT GCOVR_EXECUTABLE)
-#         message(WARNING
-#             "⚠️  gcovr not found. Please install it with:\n"
-#             "   pip install gcovr\n"
-#             "Then re-run cmake -DENABLE_COVERAGE=ON -B build"
-#         )
+# if(GCOVR_EXECUTABLE AND ENABLE_COVERAGE)
+#     add_custom_target(coverage
+#         COMMAND ${GCOVR_EXECUTABLE}
+#                 -r ${PROJECT_SRC_DIR}
+#                 -d ${CMAKE_BINARY_DIR}
+#                 --html --html-details -o coverage.html -v
+#         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#         COMMENT "Generating coverage report..."
+#     )
 # endif()
+# Make coverage an "executable" in VS Code
+if(GCOVR_EXECUTABLE AND ENABLE_COVERAGE)
 
-if(ENABLE_COVERAGE AND GCOVR_EXECUTABLE)
-    add_custom_target(coverage
-        COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+    # Create a dummy empty executable target (no source needed)
+    add_executable(coverage_exec coverage_dummy.cpp)
+
+    # Make it run gcovr after "building"
+    add_custom_command(TARGET coverage_exec
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Generating coverage report..."
         COMMAND ${GCOVR_EXECUTABLE}
-            -r ${CMAKE_SOURCE_DIR}
-            --object-directory ${CMAKE_BINARY_DIR}
-            --html --html-details -o coverage.html
+                -r ${PROJECT_SRC_DIR}
+                -d ${CMAKE_BINARY_DIR}
+                --html --html-details -o coverage.html -v
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMENT "📊 Running tests and generating HTML coverage report..."
-        VERBATIM
+        COMMENT "Generating coverage report..."
     )
 endif()
