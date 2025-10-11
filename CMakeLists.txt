@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.12)
 
 project(unit_testing LANGUAGES C CXX)
 
+option(ENABLE_COVERAGE "Enable code coverage flags" ON)
+
+if(ENABLE_COVERAGE)
+    message(NOTICE "Building with coverage instrumentation")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-O0 -g --coverage)
+        add_link_options(--coverage)
+    endif()
+endif()
+
 # Path to the project source code
 if(NOT DEFINED PROJECT_SRC_DIR)
     set(PROJECT_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/../src" CACHE PATH "Path to the project's source folder")

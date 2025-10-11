@@ -3,19 +3,21 @@
 
 Pre-configured unit testing environment for **C/C++** projects, based on [Google Test](https://github.com/google/googletest) and [VS Code](https://code.visualstudio.com/).
 
+**Note**: This setup has been tested primarily on Windows (MSYS2 / MinGW-w64). It should also work on Linux systems with minor adjustments to paths or shell syntax.
+
 ## Requirements
 
 * **GCC**
 * **CMake**
-* **CMakeTools** extension for **VS Code**
-* **C++ TestMate** extension for **VS Code**
+* **[CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)** extension for **VS Code**
+* **[C++ TestMate](https://marketplace.visualstudio.com/items?itemName=matepek.vscode-catch2-test-adapter)** extension for **VS Code**
 
 ## Getting Started
-1. Import this repository into the project you want to unit test — ideally at the root level, alongside your source code folder `/src`.
+1. Import this repository into the project you want to unit test — ideally at the root level, alongside your source folder `/src`.
 
 2. Create a `/test` folder in your project to contain the unit tests.
 
-3. Copy `configuration/CMakeLists.txt` from this repository into your project's root directory (the same level than `/src`).
+3. Copy `configuration/CMakeLists.txt` from this repository into your project's root directory (the same level as `/src`).
 
     ```
     project/
@@ -36,7 +38,7 @@ Pre-configured unit testing environment for **C/C++** projects, based on [Google
 
 * Add your test files in the `/test` folder.
 * Test filenames should start with `test_` (for example, `test_math.cpp`). All files in the `/test` folder that start with `test_` will be automatically added to the build as tests.
-* You can use the example in `examples/test_example.cpp` as a reference.
+* Use `examples/test_example.cpp` as a reference for creating new tests.
 * Refer to [Google Test](https://google.github.io/googletest/) for additional instructions on defining tests.
 
 ## Environment Setup (Windows)
@@ -59,8 +61,8 @@ pacman -S mingw-w64-x86_64-cmake
 4. Add the **MinGW-w64** installation folder to your `PATH` environment variable (the default path is `C:\msys64\ucrt64\bin`).
 
 5. In **VS Code**:
-    - Install the **CMakeTools extension**.
-    - Install the **C++ TestMate extension**.
+    - Install the **CMake Tools** extension.
+    - Install the **C++ TestMate** extension.
 
 ## Running and Debugging Unit Tests
 
@@ -81,9 +83,9 @@ This section explains how to configure **VS Code** and **CMake** to build, run, 
 
     ```json
     "testMate.cpp.test.advancedExecutables": [
-      {
-        "pattern": "test/{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*"
-      }
+        {
+            "pattern": "test/{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*"
+        }
     ],
     ```
 
@@ -153,6 +155,96 @@ These are typical issues encountered when integrating **C/C++** unit tests with 
     ```
 
     These tests will be ignored during the build, preventing build errors while you fix them.
+
+## (Optional) Code Coverage
+
+Unit tests are already configured to generate coverage data files (`.gcno` and `.gcda`) inside the `/build` directory.
+
+You can use `gcovr` to convert this raw data into human-readable reports.
+
+### Installation
+
+Install `gcovr` with:
+
+```bash
+pip install gcovr
+```
+
+### Generating a Coverage Report
+
+To generate a coverage report, run:
+
+```bash
+gcovr -r ${source_code_folder} -d ${build_folder} --html --html-details -o coverage.html
+```
+
+**Notes**:
+
+* Replace `${source_code_folder}` with the path to your source files (e.g. `../src`).
+
+* Replace `${build_folder}` with the folder containing the compiled object and coverage data (e.g. `../build`).
+
+* The `--html` and `--html-details` options create an interactive HTML report named `coverage.html`.
+
+`gcovr` generates multiple output files in the folder where it runs, so it’s recommended to execute it from a separate directory.
+
+### Output Location
+
+`gcovr` generates several intermediate files (HTML, JSON, etc.) in the directory where it is executed.
+
+For a cleaner workspace, it’s recommended to run this command from a separate folder, for example:
+
+```bash
+mkdir coverage
+cd coverage
+gcovr -r ../src -d ../build --html --html-details -o coverage.html
+```
+
+This will keep all generated files contained within the `coverage/` directory.
+
+### LCOV Output for Editor Integration
+
+If you also want to view coverage directly in **VSCode** or CI tools, add the `--lcov` option:
+
+```bash
+gcovr -r ../src -d ../build --html --html-details -o coverage.html --lcov=coverage.info
+```
+
+This creates:
+
+* `coverage.html` → for browsing in a web browser
+* `coverage.info` → for use with tools like VS Code’s [Coverage Gutters](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) extension
+
+### Output Generation Automation
+
+The generation of coverage reports can be automated with a VS Code task defined in `.vscode/tasks.json`:
+
+```json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Generate coverage report",
+            "type": "shell",
+            "command": "gcovr",
+            "args": [
+                "-r", "../../src",
+                "-d", "../build/unit_testing",
+                "--html", "--html-details", "-o", "coverage.html",
+                "--lcov=coverage.info",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/test/coverage"
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
+```
 
 ## Resources
 
